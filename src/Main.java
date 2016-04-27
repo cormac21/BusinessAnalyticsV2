@@ -55,7 +55,12 @@ public class Main {
 			rows.get(periodoI-1).setComponenteTemporal(aux);
 		}
 		linhas.get(periodoI-1).setNivel(total/3);
-		
+	}
+	
+	public float calcularNivel(int linha){
+		Row linhaAtual = rows.get(linha);
+		Row linhaPassada = rows.get(linha-1);
+		float nivel = alphaf * (linhaPassada.getValor() / rows.get((linha-periodoI)));
 	}
 	
 	
