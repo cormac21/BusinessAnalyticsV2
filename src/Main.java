@@ -58,9 +58,14 @@ public class Main {
 	}
 	
 	public float calcularNivel(int linha){
+		Row linhaXAnterior = rows.get(linha-periodoI);
 		Row linhaAtual = rows.get(linha);
 		Row linhaPassada = rows.get(linha-1);
-		float nivel = alphaf * (linhaPassada.getValor() / rows.get((linha-periodoI)));
+		float nivel = alphaf 
+				* (linhaPassada.getValor() / linhaXAnterior.getTendencia()) 
+				+ (1 - alphaf)
+				* (linhaPassada.getNivel() + linhaPassada.getTendencia());
+		return nivel;
 	}
 	
 	
