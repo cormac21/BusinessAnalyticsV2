@@ -59,13 +59,30 @@ public class Main {
 	
 	public float calcularNivel(int linha){
 		Row linhaXAnterior = rows.get(linha-periodoI);
-		Row linhaAtual = rows.get(linha);
 		Row linhaPassada = rows.get(linha-1);
 		float nivel = alphaf 
 				* (linhaPassada.getValor() / linhaXAnterior.getTendencia()) 
 				+ (1 - alphaf)
 				* (linhaPassada.getNivel() + linhaPassada.getTendencia());
 		return nivel;
+	}
+	
+	public float calcularTendencia(int linha){
+		Row linhaAtual = rows.get(linha);
+		Row linhaPassada = rows.get(linha-1);
+		float tendencia = betaf
+				* (linhaAtual.getNivel() - linhaPassada.getNivel())
+				+ (1 - betaf) * (linhaPassada.getTendencia());
+		return tendencia;
+	}
+	
+	public float calcularComponenteTemporal(int linha){
+		Row linhaAtual = rows.get(linha);
+		Row linhaXAnterior = rows.get(linha-periodoI);
+		float componenteTemporal = gammaf
+				* (linhaAtual.getValor() - linhaAtual.getNivel())
+				+ (1 - gammaf) * linhaXAnterior.getComponenteTemporal();
+		return componenteTemporal;
 	}
 	
 	
