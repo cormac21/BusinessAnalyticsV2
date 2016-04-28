@@ -32,29 +32,35 @@ public class Main {
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			
 			while((linha = bufferedReader.readLine()) != null){
+				linha = linha.replace(",", ".");
 				Float aux = Float.parseFloat(linha);
 				Row newRow = new Row(aux);
 				rows.add(newRow);
 			}
 			bufferedReader.close();
 			fileReader.close();
-		} catch (Exception e){
 			
+			inicializar();
+			for (int i = 0; i < rows.size(); i++) {
+				
+			}
+		} catch (Exception e){
+			e.printStackTrace();
 		}
 	}
 	
-	public void inicializar(){
+	public static void inicializar(){
 		ArrayList<Row> linhas = new ArrayList<Row>();
 		float total = 0;
 		for (int i = 0; i < periodoI; i++) {
-			linhas.add(rows.get(periodoI-1));
-			total = total + rows.get(periodoI-1).getValor();
+			linhas.add(rows.get(i));
+			total = total + rows.get(i).getValor();
 		}
 		for (int i = 0; i < periodoI; i++) {
-			float aux = rows.get(periodoI-1).getValor() / (total / 3 );
+			float aux = rows.get(i).getValor() / (total / 3 );
 			rows.get(periodoI-1).setComponenteTemporal(aux);
 		}
-		linhas.get(periodoI-1).setNivel(total/3);
+		rows.get(periodoI-1).setNivel(total/3);
 	}
 	
 	public float calcularNivel(int linha){
