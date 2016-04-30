@@ -6,6 +6,7 @@ public class Row {
 	public float nivel;
 	public float tendencia;
 	public float componenteTemporal;
+	public float forecasting;
 	public float erroMedio;
 	public float erroMedioPercentual;
 	
@@ -59,5 +60,13 @@ public class Row {
 
 	public void setComponenteTemporal(float componenteTemporal) {
 		this.componenteTemporal = componenteTemporal;
+	}
+
+	public float getForecasting() {
+		return forecasting;
+	}
+
+	public void setForecasting(float forecasting) {
+		this.forecasting = forecasting;
 	}
 }

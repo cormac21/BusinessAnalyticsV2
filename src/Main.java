@@ -32,7 +32,9 @@ public class Main {
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			
 			while((linha = bufferedReader.readLine()) != null){
-				linha = linha.replace(",", ".");
+				if(linha.contains(",")){
+					linha = linha.replace(",", ".");
+				}
 				Float aux = Float.parseFloat(linha);
 				Row newRow = new Row(aux);
 				rows.add(newRow);
@@ -42,13 +44,25 @@ public class Main {
 			
 			inicializar();
 			for (int i = 0; i < rows.size(); i++) {
-				
+				if(!(i+periodoI > rows.size())){
+					rows.get(i+periodoI).setNivel(calcularNivel(i+periodoI));
+					rows.get(i+periodoI).setTendencia(calcularTendencia(i+periodoI));
+					rows.get(i+periodoI).setComponenteTemporal(calcularComponenteTemporal(i+periodoI));
+					rows.get(i+periodoI).setErroMedio(calcularErroMedio(i+periodoI));
+					rows.get(i+periodoI).setErroMedioPercentual(calcularErroMedioPercentual(i+periodoI));
+					System.out.println("Linha " + (periodoI+1));
+					System.out.println("Nivel: " + rows.get(i+periodoI).nivel);
+					System.out.println("Tendencia: " + rows.get(i+periodoI).tendencia);
+					System.out.println("Componente Temporal: " + rows.get(i+periodoI).componenteTemporal);
+					System.out.println("Erro Medio: " + rows.get(i+periodoI).erroMedio);
+					System.out.println("Erro Medio Percentual: " + rows.get(i+periodoI).erroMedioPercentual);
+				}
 			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void inicializar(){
 		ArrayList<Row> linhas = new ArrayList<Row>();
 		float total = 0;
@@ -58,22 +72,41 @@ public class Main {
 		}
 		for (int i = 0; i < periodoI; i++) {
 			float aux = rows.get(i).getValor() / (total / 3 );
-			rows.get(periodoI-1).setComponenteTemporal(aux);
+			rows.get(i).setComponenteTemporal(aux);
 		}
 		rows.get(periodoI-1).setNivel(total/3);
+		rows.get(periodoI-1).setTendencia(calcularTendenciaInicial());
 	}
 	
-	public float calcularNivel(int linha){
+	private static float calcularTendenciaInicial() {
+		
+		ArrayList<Float> auxiliar = new ArrayList<Float>();
+		for (int i = 0; i < periodoI; i++) {
+			Row linhaAnterior = rows.get(i);
+			Row linhaPosterior = rows.get(i + periodoI);
+			auxiliar.add((linhaPosterior.getValor() - linhaAnterior.getValor()) / periodoI);
+		}
+		
+		float total = 0;
+		
+		for (Float float1 : auxiliar) {
+			total = total + float1;
+		}
+		
+		return total / periodoI;
+	}
+
+	public static float calcularNivel(int linha){
 		Row linhaXAnterior = rows.get(linha-periodoI);
 		Row linhaPassada = rows.get(linha-1);
 		float nivel = alphaf 
-				* (linhaPassada.getValor() / linhaXAnterior.getTendencia()) 
-				+ (1 - alphaf)
-				* (linhaPassada.getNivel() + linhaPassada.getTendencia());
+				* (linhaPassada.getValor() / linhaXAnterior.getComponenteTemporal()) 
+				+ ((1 - alphaf)
+				* (linhaPassada.getNivel() + linhaPassada.getTendencia()));
 		return nivel;
 	}
 	
-	public float calcularTendencia(int linha){
+	public static float calcularTendencia(int linha){
 		Row linhaAtual = rows.get(linha);
 		Row linhaPassada = rows.get(linha-1);
 		float tendencia = betaf
@@ -82,7 +115,7 @@ public class Main {
 		return tendencia;
 	}
 	
-	public float calcularComponenteTemporal(int linha){
+	public static float calcularComponenteTemporal(int linha){
 		Row linhaAtual = rows.get(linha);
 		Row linhaXAnterior = rows.get(linha-periodoI);
 		float componenteTemporal = gammaf
@@ -92,5 +125,17 @@ public class Main {
 	}
 	
 	
+	private static float calcularErroMedio(int i) {
+		Row linhaAtual = rows.get(i);
+		float erroMedio = Math.abs(linhaAtual.valor - linhaAtual.forecasting);
+		return erroMedio;
+	}
+	
 
+	private static float calcularErroMedioPercentual(int i) {
+		Row linhaAtual = rows.get(i);
+		float erroMedioPercentual = (Math.abs(linhaAtual.valor - linhaAtual.forecasting) / linhaAtual.valor) * 100;
+		return erroMedioPercentual;
+	}
+	
 }
