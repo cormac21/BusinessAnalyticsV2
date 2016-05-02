@@ -44,23 +44,42 @@ public class Main {
 			
 			inicializar();
 			for (int i = 0; i < rows.size(); i++) {
-				if(!(i+periodoI > rows.size())){
+				if(!(i+periodoI >= rows.size() - periodoI)){
+					System.out.println("Linha " + (i + periodoI+1));
+					System.out.println("Valor: " + rows.get(i+periodoI).valor);
 					rows.get(i+periodoI).setNivel(calcularNivel(i+periodoI));
-					rows.get(i+periodoI).setTendencia(calcularTendencia(i+periodoI));
-					rows.get(i+periodoI).setComponenteTemporal(calcularComponenteTemporal(i+periodoI));
-					rows.get(i+periodoI).setErroMedio(calcularErroMedio(i+periodoI));
-					rows.get(i+periodoI).setErroMedioPercentual(calcularErroMedioPercentual(i+periodoI));
-					System.out.println("Linha " + (periodoI+1));
 					System.out.println("Nivel: " + rows.get(i+periodoI).nivel);
+					rows.get(i+periodoI).setTendencia(calcularTendencia(i+periodoI));
 					System.out.println("Tendencia: " + rows.get(i+periodoI).tendencia);
+					rows.get(i+periodoI).setComponenteTemporal(calcularComponenteTemporal(i+periodoI));
 					System.out.println("Componente Temporal: " + rows.get(i+periodoI).componenteTemporal);
+					rows.get(i+periodoI).setForecasting(calcularForecastingAprendizado(i+periodoI));
+					System.out.println("Forecasting: " + rows.get(i+periodoI).forecasting);
+					rows.get(i+periodoI).setErroMedio(calcularErroMedio(i+periodoI));
 					System.out.println("Erro Medio: " + rows.get(i+periodoI).erroMedio);
-					System.out.println("Erro Medio Percentual: " + rows.get(i+periodoI).erroMedioPercentual);
+					rows.get(i+periodoI).setErroMedioPercentual(calcularErroMedioPercentual(i+periodoI));
+					System.out.println("Erro Medio Percentual: " + rows.get(i+periodoI).erroMedioPercentual + "%");
+				} else {
+					break;
 				}
+			}
+			
+			for (int i = 0; i < periodoI; i++) {
+				rows.add(new Row());
+			}
+			
+			for (int i = 0; i < args.length; i++) {
+				//TODO calcularForecastingProximoPeriodo();
 			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	public static void calcularForecastingProximoPeriodo(int linha){
+		Row ultimaLinha = rows.get(rows.size()-periodoI);
+		Row linhaXAnterior = rows.get(rows.size()-periodoI-periodoI);
+		
 	}
 
 	public static void inicializar(){
@@ -99,8 +118,9 @@ public class Main {
 	public static float calcularNivel(int linha){
 		Row linhaXAnterior = rows.get(linha-periodoI);
 		Row linhaPassada = rows.get(linha-1);
+		Row linhaAtual = rows.get(linha);
 		float nivel = alphaf 
-				* (linhaPassada.getValor() / linhaXAnterior.getComponenteTemporal()) 
+				* (linhaAtual.getValor() / linhaXAnterior.getComponenteTemporal()) 
 				+ ((1 - alphaf)
 				* (linhaPassada.getNivel() + linhaPassada.getTendencia()));
 		return nivel;
@@ -119,11 +139,18 @@ public class Main {
 		Row linhaAtual = rows.get(linha);
 		Row linhaXAnterior = rows.get(linha-periodoI);
 		float componenteTemporal = gammaf
-				* (linhaAtual.getValor() - linhaAtual.getNivel())
+				* (linhaAtual.getValor() / linhaAtual.getNivel())
 				+ (1 - gammaf) * linhaXAnterior.getComponenteTemporal();
 		return componenteTemporal;
 	}
 	
+	private static float calcularForecastingAprendizado(int linha){
+		Row linhaXAnterior = rows.get(linha-periodoI);
+		Row linhaPassada = rows.get(linha - 1);
+		float forecasting = (linhaPassada.getNivel() + 1 * linhaPassada.getTendencia()) * linhaXAnterior.getComponenteTemporal();
+		return forecasting;
+		
+	}
 	
 	private static float calcularErroMedio(int i) {
 		Row linhaAtual = rows.get(i);
@@ -131,7 +158,6 @@ public class Main {
 		return erroMedio;
 	}
 	
-
 	private static float calcularErroMedioPercentual(int i) {
 		Row linhaAtual = rows.get(i);
 		float erroMedioPercentual = (Math.abs(linhaAtual.valor - linhaAtual.forecasting) / linhaAtual.valor) * 100;

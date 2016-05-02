@@ -14,6 +14,10 @@ public class Row {
 		this.valor = aux;
 	}
 
+	public Row() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public float getValor() {
 		return valor;
 	}
