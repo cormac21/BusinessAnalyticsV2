@@ -11,6 +11,7 @@ public class Main {
 
 	public static ArrayList<Row> rows = new ArrayList<Row>();
 
+	
 	static int periodoI = 0;
 	static float alphaf, betaf, gammaf = 0;
 
