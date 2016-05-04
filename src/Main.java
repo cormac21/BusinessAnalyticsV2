@@ -1,5 +1,8 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 import cormacx.prova.Row;
@@ -13,7 +16,8 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		String filePath = args[0];
+		String file = args[0];
+		String filePath = file.substring(0, file.lastIndexOf("."));
 		String periodo = args[1];
 		String alpha = args[2];
 		String beta = args[3];
@@ -27,7 +31,7 @@ public class Main {
 		String linha = null;
 
 		try {
-			FileReader fileReader = new FileReader(filePath);
+			FileReader fileReader = new FileReader(file);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 
 			while ((linha = bufferedReader.readLine()) != null) {
@@ -43,20 +47,12 @@ public class Main {
 
 			inicializar();
 			for (int i = 0; i <= (rows.size() -periodoI - 1); i++) {
-				System.out.println("Linha " + (i + periodoI + 1));
-				System.out.println("Valor: " + rows.get(i + periodoI).valor);
 				rows.get(i + periodoI).setNivel(calcularNivel(i + periodoI));
-				System.out.println("Nivel: " + rows.get(i + periodoI).nivel);
 				rows.get(i + periodoI).setTendencia(calcularTendencia(i + periodoI));
-				System.out.println("Tendencia: " + rows.get(i + periodoI).tendencia);
 				rows.get(i + periodoI).setComponenteTemporal(calcularComponenteTemporal(i + periodoI));
-				System.out.println("Componente Temporal: " + rows.get(i + periodoI).componenteTemporal);
 				rows.get(i + periodoI).setForecasting(calcularForecastingAprendizado(i + periodoI));
-				System.out.println("Forecasting: " + rows.get(i + periodoI).forecasting);
 				rows.get(i + periodoI).setErroMedio(calcularErroMedio(i + periodoI));
-				System.out.println("Erro Medio: " + rows.get(i + periodoI).erroMedio);
 				rows.get(i + periodoI).setErroMedioPercentual(calcularErroMedioPercentual(i + periodoI));
-				System.out.println("Erro Medio Percentual: " + rows.get(i + periodoI).erroMedioPercentual + "%");
 			}
 
 			for (int i = 0; i < periodoI; i++) {
@@ -67,7 +63,23 @@ public class Main {
 				rows.get(i + (rows.size() -periodoI )).setForecasting(calcularForecastingProximoPeriodo(i + rows.size() - periodoI + 1));
 			}
 			
-			//TODO escrever o arquivo de resposta
+			File saida = new File(filePath + "-resultado.txt");
+			if(!saida.exists()){
+				saida.createNewFile();
+			}
+			
+			FileWriter fileWriter = new FileWriter(saida);
+			BufferedWriter writer = new BufferedWriter(fileWriter);
+			writer.write("Linha;Valor;L;b;S;Forecasting;Erro;ErroPercentual;");
+			writer.newLine();
+			for (int i = 0; i < rows.size(); i++) {
+				Row row = rows.get(i);
+				writer.write((i+1) + ";" + row.getValor() + ";" + row.getNivel() + ";" + row.getTendencia() 
+						+ ";" + row.getComponenteTemporal() + ";" + row.getForecasting() + ";" + row.getErroMedio() + ";" + row.getErroMedioPercentual() + ";");
+				writer.newLine();
+			}
+			writer.close();
+			fileWriter.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
